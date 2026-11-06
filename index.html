@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>twojejajco | Roblox Developer & English-to-Polish Translator</title>
+<meta name="description" content="Roblox developer and English-to-Polish translator working with RoDevs.">
+<meta name="theme-color" content="#101114">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ===== THEME: edit colors and fonts here ===== */
+:root{
+  --bg:#101114;
+  --surface:#17191d;
+  --surface-2:#1f2227;
+  --line:#2a2e35;
+  --text:#ecedef;
+  --muted:#9097a1;
+  --accent:#7fb2ff;
+  --accent-2:#ffd27f;
+  --accent-soft:rgba(127,178,255,.12);
+  --radius:14px;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+  --mx:50%;--my:30%;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--bg);color:var(--text);font:400 1rem/1.65 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+::selection{background:var(--accent);color:#0c1118}
+.wrap{width:min(1100px,100% - 2.5rem);margin-inline:auto;position:relative}
+section{padding:6.5rem 0;position:relative}
+h1,h2,h3{font-family:var(--display);line-height:1.05;letter-spacing:-.025em}
+h2{font-size:clamp(2rem,5vw,3.2rem);margin-bottom:.8rem}
+.lead{color:var(--muted);max-width:58ch;margin-bottom:2.5rem}
+
+/* scroll progress */
+#progress{position:fixed;top:0;left:0;height:3px;width:100%;background:var(--accent);transform-origin:left;transform:scaleX(0);z-index:100}
+
+/* ===== REVEAL ON SCROLL ===== */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+.reveal.in{opacity:1;transform:none}
+
+/* ===== NAV ===== */
+header{position:fixed;inset:0 0 auto;z-index:50;background:rgba(16,17,20,.8);backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color .3s}
+header.scrolled{border-color:var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:66px}
+.logo{font-family:var(--display);font-weight:800;font-size:1.2rem;display:flex;align-items:center;gap:.6rem}
+.logo i{width:10px;height:10px;border-radius:3px;background:var(--accent);animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.nav ul{display:flex;gap:.2rem;list-style:none;padding:0}
+.nav ul a{position:relative;display:block;padding:.45rem .85rem;color:var(--muted);font-size:.95rem;transition:color .2s}
+.nav ul a::after{content:"";position:absolute;left:.85rem;right:.85rem;bottom:.15rem;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.nav ul a:hover,.nav ul a.active{color:var(--text)}
+.nav ul a:hover::after,.nav ul a.active::after{transform:scaleX(1)}
+.burger{display:none;background:none;border:1px solid var(--line);color:var(--text);width:42px;height:42px;border-radius:10px;cursor:pointer}
+.burger span{display:block;width:18px;height:2px;background:currentColor;margin:4px auto;transition:transform .25s,opacity .25s}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+/* ===== HERO ===== */
+.hero{min-height:100svh;display:flex;align-items:center;padding:7rem 0 5rem;overflow:hidden}
+.hero-bg{position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1.2px);background-size:28px 28px;
+  -webkit-mask-image:radial-gradient(420px circle at var(--mx) var(--my),#000,transparent 70%);
+  mask-image:radial-gradient(420px circle at var(--mx) var(--my),#000,transparent 70%)}
+.hero-glow{position:absolute;width:520px;height:520px;border-radius:50%;left:calc(var(--mx) - 260px);top:calc(var(--my) - 260px);background:radial-gradient(circle,rgba(127,178,255,.09),transparent 65%);pointer-events:none;transition:left .25s ease-out,top .25s ease-out}
+.hero h1{font-size:clamp(2.8rem,9vw,6.6rem);font-weight:800}
+.line{display:block;overflow:hidden;padding-bottom:.08em}
+.line span{display:inline-block;transform:translateY(110%);animation:lineUp 1s cubic-bezier(.2,.8,.2,1) forwards}
+.line:nth-child(1) span{animation-delay:.15s}
+.line:nth-child(2) span{animation-delay:.35s;color:var(--muted)}
+@keyframes lineUp{to{transform:none}}
+.role{margin:1.8rem 0 .6rem;font-family:var(--display);font-size:clamp(1.2rem,3vw,1.7rem);font-weight:500;min-height:1.6em}
+.role b{color:var(--accent);font-weight:500}
+.caret{display:inline-block;width:2px;height:1em;background:var(--accent);margin-left:3px;vertical-align:-.12em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.hero p.sub{max-width:54ch;color:var(--muted);font-size:1.08rem;margin-bottom:2.2rem}
+.hero p.sub strong{color:var(--text);font-weight:500}
+.fade{opacity:0;transform:translateY(16px);animation:fadeUp .8s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d)}
+@keyframes fadeUp{to{opacity:1;transform:none}}
+.btns{display:flex;flex-wrap:wrap;gap:.8rem}
+.btn{display:inline-block;padding:.85rem 1.7rem;border-radius:12px;font-weight:500;border:1px solid var(--line);transition:transform .25s,background .25s,border-color .25s,box-shadow .25s;will-change:transform}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:#0c1118;border-color:var(--accent)}
+.btn.primary:hover{background:#a2c8ff;box-shadow:0 8px 28px rgba(127,178,255,.25)}
+.scroll-hint{position:absolute;bottom:1.8rem;left:50%;width:22px;height:36px;border:2px solid var(--line);border-radius:14px;transform:translateX(-50%)}
+.scroll-hint::after{content:"";position:absolute;left:50%;top:6px;width:3px;height:7px;margin-left:-1.5px;border-radius:2px;background:var(--accent);animation:wheel 1.8s ease-in-out infinite}
+@keyframes wheel{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(12px)}}
+
+/* ===== MARQUEE ===== */
+.marquee{border-block:1px solid var(--line);background:var(--surface);overflow:hidden;padding:1rem 0}
+.track{display:flex;gap:2.5rem;width:max-content;animation:scroll 32s linear infinite}
+.marquee:hover .track{animation-play-state:paused}
+.track span{font-family:var(--display);font-size:1.15rem;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:2.5rem}
+.track span::after{content:"";width:6px;height:6px;border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* ===== PROJECTS ===== */
+.filters{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.8rem}
+.filters button{background:none;border:1px solid var(--line);color:var(--muted);padding:.5rem 1.1rem;border-radius:999px;font:inherit;font-size:.9rem;cursor:pointer;transition:all .25s}
+.filters button:hover{color:var(--text);border-color:#3a3f48}
+.filters button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.4rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;position:relative;transform-style:preserve-3d;transition:border-color .3s,box-shadow .3s,opacity .4s}
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(320px circle at var(--cx,50%) var(--cy,50%),rgba(127,178,255,.1),transparent 60%)}
+.card:hover{border-color:#3d434c;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.card:hover::before{opacity:1}
+.card.hide{display:none}
+.shot{position:relative;aspect-ratio:16/9;background:var(--surface-2);display:grid;place-items:center;color:var(--muted);font-size:.85rem;text-align:center;padding:1rem;border-bottom:1px solid var(--line);overflow:hidden}
+.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.card:hover .shot img{transform:scale(1.06)}
+.card-body{padding:1.4rem;display:flex;flex-direction:column;gap:.65rem;flex:1}
+.tag{align-self:flex-start;font-size:.8rem;color:var(--accent);background:var(--accent-soft);padding:.2rem .7rem;border-radius:999px;display:inline-flex;align-items:center;gap:.45rem}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent-2);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
+.card h3{font-size:1.45rem}
+.card p{color:var(--muted);font-size:.96rem}
+.card .link{margin-top:auto;padding-top:.6rem;color:var(--accent);font-size:.96rem;display:inline-flex;gap:.4rem;align-items:center}
+.card .link span{transition:transform .25s}
+.card .link:hover span{transform:translateX(5px)}
+.empty{display:none;padding:2rem;border:1px dashed var(--line);border-radius:var(--radius);color:var(--muted);text-align:center}
+.empty.show{display:block;animation:fadeUp .5s forwards}
+
+/* ===== SKILLS ===== */
+.skills{display:flex;flex-wrap:wrap;gap:.7rem;padding:0}
+.skills li{list-style:none;padding:.65rem 1.2rem;background:var(--surface);border:1px solid var(--line);border-radius:12px;transition:transform .25s,border-color .25s,color .25s,background .25s;cursor:default}
+.skills li:hover{transform:translateY(-4px);border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+/* ===== TRANSLATION ===== */
+.translation{background:var(--surface);border-block:1px solid var(--line)}
+.tr-grid{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center}
+.tr-grid p{color:var(--muted);margin-bottom:1rem}
+.demo{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:1.6rem;margin-bottom:1rem}
+.demo small{color:var(--muted);font-size:.85rem}
+.swap{display:flex;align-items:center;gap:1rem;font-family:var(--display);font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800;margin-top:.5rem;flex-wrap:wrap}
+.swap i{font-style:normal;color:var(--accent)}
+.swap .pl{color:var(--accent)}
+.swap span{display:inline-block;min-width:3ch;transition:opacity .35s,transform .35s}
+.swap span.out{opacity:0;transform:translateY(10px)}
+.points{list-style:none;padding:0;display:grid;gap:.75rem}
+.points li{padding:1rem 1.25rem;background:var(--bg);border:1px solid var(--line);border-radius:12px;transition:border-color .25s,transform .25s}
+.points li:hover{border-color:var(--accent);transform:translateX(6px)}
+.points b{display:block;font-weight:500;margin-bottom:.1rem}
+.points span{color:var(--muted);font-size:.95rem}
+
+/* ===== CONTACT ===== */
+.contacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+.contact{display:block;padding:1.4rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);position:relative;overflow:hidden;transition:border-color .3s,transform .3s}
+.contact::after{content:"↗";position:absolute;top:1.1rem;right:1.2rem;color:var(--muted);transition:transform .3s,color .3s}
+.contact:hover{border-color:var(--accent);transform:translateY(-4px)}
+.contact:hover::after{color:var(--accent);transform:translate(3px,-3px)}
+.contact b{display:block;font-family:var(--display);font-size:1.2rem}
+.contact span{color:var(--muted);font-size:.95rem;word-break:break-all}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translate(-50%,120%);background:var(--surface-2);border:1px solid var(--accent);padding:.7rem 1.2rem;border-radius:10px;font-size:.92rem;transition:transform .4s cubic-bezier(.2,.8,.2,1);z-index:90}
+.toast.show{transform:translate(-50%,0)}
+footer{padding:2rem 0;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:760px){
+  section{padding:4.5rem 0}
+  .burger{display:block}
+  .nav ul{position:absolute;top:66px;left:0;right:0;flex-direction:column;background:var(--bg);border-bottom:1px solid var(--line);padding:.5rem 1.25rem 1rem;display:none}
+  .nav ul.open{display:flex;animation:fadeUp .3s forwards}
+  .nav ul a{padding:.75rem .5rem}
+  .tr-grid{grid-template-columns:1fr;gap:2rem}
+  .scroll-hint{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal,.fade{opacity:1;transform:none}
+  .line span{transform:none}
+}
+</style>
+</head>
+
+<body>
+<div id="progress"></div>
+
+<header>
+  <div class="wrap nav">
+    <a href="#home" class="logo"><i></i>twojejajco</a>
+    <button class="burger" aria-label="Toggle menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+    <ul id="menu">
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#translation">Translation</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div><div class="hero-glow"></div>
+  <div class="wrap">
+    <h1>
+      <span class="line"><span>I build games.</span></span>
+      <span class="line"><span>I create experiences.</span></span>
+    </h1>
+    <div class="role fade" style="--d:.7s">
+      <b id="typed"></b><span class="caret"></span>
+    </div>
+    <p class="sub fade" style="--d:.85s">I'm a <strong>Roblox developer</strong> and <strong>English-to-Polish translator</strong> working with <strong>RoDevs</strong>. I make games on Roblox and help bring them to Polish-speaking players.</p>
+    <div class="btns fade" style="--d:1s">
+      <a class="btn primary magnetic" href="#projects">Projects</a>
+      <a class="btn magnetic" href="#contact">Contact</a>
+    </div>
+  </div>
+  <div class="scroll-hint" aria-hidden="true"></div>
+</section>
+
+<!-- ===== SKILLS MARQUEE (filled by JS from the Skills list) ===== -->
+<div class="marquee" aria-hidden="true"><div class="track" id="track"></div></div>
+
+<!-- ===== PROJECTS ===== -->
+<section id="projects">
+  <div class="wrap">
+    <h2 class="reveal">Projects</h2>
+    <p class="lead reveal" style="--d:.1s">Games in development, personal Roblox projects and experiments.</p>
+
+    <div class="filters reveal" style="--d:.15s" role="group" aria-label="Filter projects">
+      <button class="on" data-filter="all">All</button>
+      <button data-filter="dev">In development</button>
+      <button data-filter="personal">Personal</button>
+      <button data-filter="experiment">Experiments</button>
+    </div>
+
+    <div class="grid" id="project-grid">
+      <!--
+        ADD A PROJECT: copy one whole <article class="card reveal"> ... </article> block and paste it below.
+        - data-category: dev | personal | experiment (must match a filter button)
+        - Screenshot: put your image in the "images" folder and set the img src
+        - Link: replace the href, or delete the whole <a class="link"> line
+        - Tag text is shown on the card (e.g. "In development", "Personal project", "Experiment")
+        - Remove the pulsing dot on finished projects by adding style="--dot:none" is not needed: just
+          copy the card and change class "tag" to "tag done" if you add that style yourself.
+      -->
+
+      <article class="card reveal tilt" data-category="dev">
+        <div class="shot">
+          Screenshot placeholder
+          <img src="images/backrooms-noclip.png" alt="Backrooms Noclip screenshot" loading="lazy">
+        </div>
+        <div class="card-body">
+          <span class="tag">In development · Public beta</span>
+          <h3>Backrooms Noclip</h3>
+          <p>Backrooms Lite. An attempt at a realistic liminal horror exploration game set in a large, maze-like office environment inspired by the Backrooms. Explore, navigate and survive subtle anomalies and rare entities. Currently has 2 levels.</p>
+          <a class="link" href="PASTE-YOUR-ROBLOX-GAME-LINK" target="_blank" rel="noopener">Play the beta on Roblox <span>→</span></a>
+        </div>
+      </article>
+
+    </div>
+    <div class="empty" id="empty">Nothing in this category yet. More projects are coming.</div>
+  </div>
+</section>
+
+<!-- ===== SKILLS ===== -->
+<section id="skills">
+  <div class="wrap">
+    <h2 class="reveal">Skills</h2>
+    <p class="lead reveal" style="--d:.1s">The tools and disciplines I work with.</p>
+    <ul class="skills" id="skill-list">
+      <li class="reveal">Roblox Studio</li>
+      <li class="reveal">Luau scripting</li>
+      <li class="reveal">Game development</li>
+      <li class="reveal">Game design</li>
+      <li class="reveal">UI development</li>
+      <li class="reveal">Debugging</li>
+      <li class="reveal">English-to-Polish translation</li>
+      <li class="reveal">Polish localization</li>
+      <li class="reveal">English language proficiency</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== TRANSLATION ===== -->
+<section class="translation" id="translation">
+  <div class="wrap tr-grid">
+    <div>
+      <h2 class="reveal">Translation with RoDevs</h2>
+      <p class="reveal" style="--d:.1s">I work with RoDevs as an English-to-Polish translator, handling translation and localization so content reads naturally for Polish-speaking players.</p>
+      <p class="reveal" style="--d:.2s">Being both a developer and a translator means I understand how text sits inside a game, not just how it reads on its own.</p>
+    </div>
+    <div>
+      <div class="demo reveal" style="--d:.1s">
+        <small>Example of game text, English to Polish</small>
+        <div class="swap" aria-live="off"><span id="en">Play</span><i>→</i><span id="pl" class="pl">Graj</span></div>
+      </div>
+      <ul class="points">
+        <li class="reveal" style="--d:.15s"><b>English-to-Polish translation</b><span>Turning English text into clear, natural Polish.</span></li>
+        <li class="reveal" style="--d:.25s"><b>Polish localization</b><span>Adapting content so it feels right for Polish players.</span></li>
+        <li class="reveal" style="--d:.35s"><b>Developer's perspective</b><span>Familiarity with Roblox and Luau helps me understand in-game text.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact">
+  <div class="wrap">
+    <h2 class="reveal">Contact</h2>
+    <p class="lead reveal" style="--d:.1s">Want to work together or have a question? Reach out on any of these.</p>
+    <div class="contacts">
+      <!-- Tap Discord to copy the username. Replace the placeholders for Email and GitHub. -->
+      <a class="contact reveal" style="--d:.05s" href="#" id="discord" data-copy="inhalator1."><b>Discord</b><span>inhalator1.</span></a>
+      <a class="contact reveal" style="--d:.15s" href="mailto:you@example.com"><b>Email</b><span>you@example.com</span></a>
+      <a class="contact reveal" style="--d:.25s" href="https://github.com/your-username" target="_blank" rel="noopener"><b>GitHub</b><span>github.com/your-username</span></a>
+      <a class="contact reveal" style="--d:.35s" href="https://www.roblox.com/users/profile?username=twojejajco" target="_blank" rel="noopener"><b>Roblox profile</b><span>twojejajco</span></a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap">&copy; <span id="year"></span> twojejajco. All rights reserved.</div></footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var touch=window.matchMedia('(hover: none)').matches;
+
+  // Mobile menu
+  var burger=document.querySelector('.burger'), menu=document.getElementById('menu');
+  burger.addEventListener('click',function(){burger.setAttribute('aria-expanded',menu.classList.toggle('open'));});
+  menu.addEventListener('click',function(e){if(e.target.tagName==='A'){menu.classList.remove('open');burger.setAttribute('aria-expanded','false');}});
+
+  // Header border + scroll progress
+  var header=document.querySelector('header'), bar=document.getElementById('progress');
+  function onScroll(){
+    header.classList.toggle('scrolled',scrollY>10);
+    var h=document.documentElement.scrollHeight-innerHeight;
+    bar.style.transform='scaleX('+(h>0?scrollY/h:0)+')';
+  }
+  onScroll();addEventListener('scroll',onScroll,{passive:true});
+
+  // Active nav link
+  var links=[].slice.call(menu.querySelectorAll('a'));
+  if('IntersectionObserver' in window){
+    var nav=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting)links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id);});
+    });},{rootMargin:'-45% 0px -50% 0px'});
+    links.forEach(function(a){var s=document.querySelector(a.getAttribute('href'));if(s)nav.observe(s);});
+
+    // Scroll reveal (also picks up cards you add later)
+    var rv=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('in');rv.unobserve(e.target);}
+    });},{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(function(el,i){
+      if(el.parentElement.id==='skill-list')el.style.setProperty('--d',(i%9)*0.06+'s');
+      rv.observe(el);
+    });
+  }else{document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});}
+
+  // Hero: spotlight follows the pointer
+  var hero=document.querySelector('.hero');
+  if(!reduce&&!touch){
+    hero.addEventListener('mousemove',function(e){
+      var r=hero.getBoundingClientRect();
+      root.style.setProperty('--mx',(e.clientX-r.left)+'px');
+      root.style.setProperty('--my',(e.clientY-r.top)+'px');
+    });
+  }
+
+  // Hero: typing role (edit the list)
+  var roles=['Roblox developer','English-to-Polish translator','RoDevs translator'];
+  var typed=document.getElementById('typed'), ri=0, ci=0, del=false;
+  function type(){
+    var w=roles[ri];
+    typed.textContent=w.slice(0,ci);
+    if(!del&&ci<w.length){ci++;setTimeout(type,70);}
+    else if(!del){del=true;setTimeout(type,1600);}
+    else if(ci>0){ci--;setTimeout(type,35);}
+    else{del=false;ri=(ri+1)%roles.length;setTimeout(type,300);}
+  }
+  if(reduce){typed.textContent=roles[0];}else{setTimeout(type,1000);}
+
+  // Skills marquee built from the Skills list
+  var track=document.getElementById('track');
+  var names=[].map.call(document.querySelectorAll('#skill-list li'),function(li){return li.textContent;});
+  var html=names.map(function(n){return '<span>'+n+'</span>';}).join('');
+  track.innerHTML=html+html;
+
+  // Project filters
+  var buttons=document.querySelectorAll('.filters button'), empty=document.getElementById('empty');
+  buttons.forEach(function(btn){btn.addEventListener('click',function(){
+    buttons.forEach(function(b){b.classList.remove('on');});btn.classList.add('on');
+    var f=btn.dataset.filter, shown=0;
+    document.querySelectorAll('#project-grid .card').forEach(function(c){
+      var hide=f!=='all'&&c.dataset.category!==f;
+      c.classList.toggle('hide',hide);
+      if(!hide){shown++;c.style.animation='none';c.offsetHeight;c.style.animation='fadeUp .5s forwards';}
+    });
+    empty.classList.toggle('show',shown===0);
+  });});
+
+  // Cards: 3D tilt + light that follows the pointer
+  if(!reduce&&!touch){
+    document.getElementById('project-grid').addEventListener('mousemove',function(e){
+      var c=e.target.closest('.card');if(!c)return;
+      var r=c.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+      c.style.setProperty('--cx',x+'px');c.style.setProperty('--cy',y+'px');
+      c.style.transform='perspective(900px) rotateX('+((y/r.height-.5)*-6)+'deg) rotateY('+((x/r.width-.5)*6)+'deg) translateY(-4px)';
+    });
+    document.getElementById('project-grid').addEventListener('mouseout',function(e){
+      var c=e.target.closest('.card');if(c&&!c.contains(e.relatedTarget))c.style.transform='';
+    });
+    // Magnetic buttons
+    document.querySelectorAll('.magnetic').forEach(function(b){
+      b.addEventListener('mousemove',function(e){
+        var r=b.getBoundingClientRect();
+        b.style.transform='translate('+((e.clientX-r.left-r.width/2)*.2)+'px,'+((e.clientY-r.top-r.height/2)*.3)+'px)';
+      });
+      b.addEventListener('mouseleave',function(){b.style.transform='';});
+    });
+  }
+
+  // Translation demo: cycles English/Polish game text
+  var pairs=[['Play','Graj'],['Shop','Sklep'],['Settings','Ustawienia'],['Friends','Znajomi']];
+  var en=document.getElementById('en'), pl=document.getElementById('pl'), pi=0;
+  if(!reduce){setInterval(function(){
+    en.classList.add('out');pl.classList.add('out');
+    setTimeout(function(){
+      pi=(pi+1)%pairs.length;en.textContent=pairs[pi][0];pl.textContent=pairs[pi][1];
+      en.classList.remove('out');pl.classList.remove('out');
+    },350);
+  },2600);}
+
+  // Discord: tap to copy
+  var toast=document.getElementById('toast');
+  document.getElementById('discord').addEventListener('click',function(e){
+    e.preventDefault();
+    var t=this.dataset.copy;
+    function done(m){toast.textContent=m;toast.classList.add('show');setTimeout(function(){toast.classList.remove('show');},2200);}
+    if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){done('Discord username copied: '+t);},function(){done('Discord: '+t);});}
+    else{done('Discord: '+t);}
+  });
+
+  document.getElementById('year').textContent=new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
